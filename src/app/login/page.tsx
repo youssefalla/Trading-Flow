@@ -14,12 +14,21 @@ export default function LoginPage() {
     const fd = new FormData(e.currentTarget)
     const { createClient } = await import('@/lib/supabase/client')
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email: fd.get('email') as string,
       password: fd.get('password') as string,
     })
     if (error) { setError(error.message); setLoading(false); return }
-    window.location.href = '/dashboard/copy'
+
+    // Redirect based on role from profiles table
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', authData.user.id)
+      .single()
+
+    const role = profile?.role ?? authData.user.user_metadata?.role
+    window.location.href = role === 'master' ? '/dashboard/master' : '/dashboard/copy'
   }
 
   return (
