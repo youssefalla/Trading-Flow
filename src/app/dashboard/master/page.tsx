@@ -1,23 +1,13 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { LayoutDashboard, Eye, Users, TrendingUp, Banknote, Radio, Settings, Plus, Camera } from 'lucide-react'
+import { Plus } from 'lucide-react'
+import { MasterSidebar } from '@/components/MasterSidebar'
 import type { Profile, Gig, Trade } from '@/types/database'
 
 const SYS = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif'
 const INSTRUMENTS = ['Forex', 'Gold', 'Indices', 'Crypto', 'Oil', 'Stocks']
-
-const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard',   href: '/dashboard/master', active: true },
-  { icon: Eye,             label: 'Gig Profile', href: '/dashboard/master' },
-  { icon: Users,           label: 'Followers',   href: '/dashboard/master' },
-  { icon: TrendingUp,      label: 'My Trades',   href: '/dashboard/master' },
-  { icon: Banknote,        label: 'Earnings',    href: '/dashboard/master' },
-  { icon: Radio,           label: 'Community',   href: '/marketplace' },
-  { icon: Settings,        label: 'Settings',    href: '/dashboard/master' },
-]
 
 export default function MasterDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -31,33 +21,6 @@ export default function MasterDashboard() {
   const [gigForm, setGigForm] = useState({ city: '', bio: '', style: '', instruments: [] as string[], fee: '10' })
   const [saving, setSaving] = useState(false)
   const [gigError, setGigError] = useState('')
-
-  // Avatar upload
-  const [avatarUploading, setAvatarUploading] = useState(false)
-  const avatarInputRef = useRef<HTMLInputElement>(null)
-
-  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setAvatarUploading(true)
-    try {
-      const { createClient } = await import('@/lib/supabase/client')
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const ext = file.name.split('.').pop()
-      const path = `${user.id}/avatar.${ext}`
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(path, file, { upsert: true, contentType: file.type })
-      if (uploadError) throw uploadError
-      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-      await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', user.id)
-      setProfile(p => p ? { ...p, avatar_url: publicUrl } : p)
-    } finally {
-      setAvatarUploading(false)
-    }
-  }
 
   useEffect(() => {
     async function load() {
@@ -126,47 +89,7 @@ export default function MasterDashboard() {
 
   return (
     <div className="min-h-screen flex tf-page" style={{ fontFamily: SYS }}>
-      {/* Sidebar */}
-      <aside className="w-64 hidden md:flex flex-col p-6 gap-6 shrink-0 tf-sidebar">
-        <Link href="/" className="flex items-center gap-2">
-          <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14.5" stroke="#C9A84C" strokeWidth="1"/><path d="M22 9 A 11 11 0 1 0 22 23 A 8 8 0 1 1 22 9 Z" fill="#C9A84C"/><path d="M11 21 L21 11 M16 11 H21 V16" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          <span style={{ fontFamily: SYS, fontWeight: 700, color: 'var(--tf-text)', letterSpacing: '-0.02em' }}>Trade<span style={{ color: '#C9A84C' }}>Flow</span></span>
-        </Link>
-
-        <div className="rounded-xl p-4 text-center" style={{ background: 'rgba(201,168,76,.08)', border: '1px solid rgba(201,168,76,.2)' }}>
-          <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-          <button type="button" onClick={() => avatarInputRef.current?.click()}
-            className="relative w-14 h-14 rounded-full mx-auto mb-3 block overflow-hidden group"
-            style={{ background: 'linear-gradient(135deg,#E0C26A,#C9A84C)' }}
-            title="Change photo">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
-            ) : (
-              <span className="w-full h-full grid place-items-center font-bold text-xl" style={{ color: '#1F2329', fontFamily: SYS }}>{initials}</span>
-            )}
-            <div className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'rgba(0,0,0,0.5)' }}>
-              {avatarUploading ? <span className="text-white text-[10px] font-mono">...</span> : <Camera size={16} color="white" />}
-            </div>
-          </button>
-          <div className="text-sm font-semibold" style={{ color: 'var(--tf-text)' }}>{profile?.full_name ?? '—'}</div>
-          <div className="text-xs mt-0.5" style={{ color: '#C9A84C' }}>Master Trader ✓</div>
-          {profile?.city && <div className="text-xs mt-2" style={{ color: 'var(--tf-subtle)' }}>{profile.city}</div>}
-        </div>
-
-        <nav className="flex flex-col gap-1 flex-1">
-          {navItems.map(({ icon: Icon, label, href, active }) => (
-            <Link key={label} href={href} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all"
-              style={{ background: active ? 'rgba(201,168,76,.12)' : 'transparent', color: active ? '#C9A84C' : 'var(--tf-muted)', border: active ? '1px solid rgba(201,168,76,.2)' : '1px solid transparent' }}>
-              <Icon size={16} strokeWidth={1.7} /><span>{label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <Link href="/marketplace" className="btn-outline rounded-xl py-2.5 px-4 text-sm font-medium text-center flex-1">View My Gig →</Link>
-          <ThemeToggle />
-        </div>
-      </aside>
+      <MasterSidebar profile={profile} onAvatarChange={url => setProfile(p => p ? { ...p, avatar_url: url } : p)} />
 
       {/* Main */}
       <main className="flex-1 p-6 md:p-8 overflow-y-auto">
