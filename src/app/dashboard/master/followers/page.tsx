@@ -28,7 +28,7 @@ export default function FollowersPage() {
         supabase.from('follows').select('trader_id, created_at, profiles!trader_id(full_name, avatar_url)').eq('master_id', user.id).order('created_at', { ascending: false }),
       ])
       setProfile(pRes.data)
-      setFollowers((fRes.data ?? []) as Follower[])
+      setFollowers((fRes.data ?? []) as unknown as Follower[])
       setLoading(false)
     }
     load()
