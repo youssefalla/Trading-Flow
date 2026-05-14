@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { LayoutDashboard, Users, TrendingUp, Banknote, BookOpen, Settings } from 'lucide-react'
+import { LayoutDashboard, Users, TrendingUp, BookOpen, Settings } from 'lucide-react'
 import type { Gig, Trade } from '@/types/database'
 
 const SYS = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif'
@@ -12,7 +12,6 @@ const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard',  href: '/dashboard/copy', active: true },
   { icon: Users,           label: 'My Traders', href: '/marketplace' },
   { icon: TrendingUp,      label: 'My Trades',  href: '/dashboard/copy' },
-  { icon: Banknote,        label: 'Rebates',    href: '/dashboard/copy' },
   { icon: BookOpen,        label: 'Courses',    href: '/dashboard/copy' },
   { icon: Settings,        label: 'Settings',   href: '/dashboard/copy' },
 ]
