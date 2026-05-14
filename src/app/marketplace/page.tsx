@@ -102,9 +102,11 @@ export default function Marketplace() {
                 <div key={gig.id} className="ai-card p-6 flex flex-col relative" style={{ minHeight: 340 }}>
                   <div className="ai-content h-full flex flex-col">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-full grid place-items-center font-bold text-xl shrink-0"
+                      <div className="w-14 h-14 rounded-full shrink-0 overflow-hidden grid place-items-center font-bold text-xl"
                         style={{ background: 'linear-gradient(135deg,#E0C26A,#C9A84C)', color: '#1F2329', fontFamily: 'var(--font-syne)', boxShadow: '0 8px 20px rgba(201,168,76,.2)' }}>
-                        {init}
+                        {p?.avatar_url ? (
+                          <img src={p.avatar_url} alt={p.full_name} className="w-full h-full object-cover" />
+                        ) : init}
                       </div>
                       <div className="min-w-0">
                         <div className="font-semibold text-base truncate" style={{ color: '#F0EDE8', fontFamily: 'var(--font-syne)' }}>{p?.full_name ?? '—'}</div>

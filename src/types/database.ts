@@ -6,6 +6,7 @@ export interface Profile {
   role: Role
   city: string | null
   bio: string | null
+  avatar_url: string | null
   created_at: string
 }
 

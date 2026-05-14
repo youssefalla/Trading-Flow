@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Camera } from 'lucide-react'
 
 function SignupForm() {
   const params = useSearchParams()
@@ -12,19 +13,63 @@ function SignupForm() {
   const [role, setRole] = useState<'master' | 'trader'>(defaultRole)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarFile(file)
+    const reader = new FileReader()
+    reader.onload = ev => setAvatarPreview(ev.target?.result as string)
+    reader.readAsDataURL(file)
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (!avatarFile) { setError('Please upload a profile photo before continuing.'); return }
     setLoading(true); setError('')
     const fd = new FormData(e.currentTarget)
     const { createClient } = await import('@/lib/supabase/client')
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+
+    const { data: authData, error: signUpError } = await supabase.auth.signUp({
       email: fd.get('email') as string,
       password: fd.get('password') as string,
       options: { data: { role, full_name: fd.get('name') } },
     })
-    if (error) { setError(error.message); setLoading(false); return }
+    if (signUpError) { setError(signUpError.message); setLoading(false); return }
+
+    const userId = authData.user?.id
+    let avatarUrl: string | null = null
+
+    if (userId && avatarFile) {
+      const ext = avatarFile.name.split('.').pop()
+      const path = `${userId}/avatar.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type })
+
+      if (uploadError) {
+        setError('Photo upload failed: ' + uploadError.message)
+        setLoading(false)
+        return
+      }
+
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+      avatarUrl = publicUrl
+    }
+
+    if (userId) {
+      await supabase.from('profiles').upsert({
+        id: userId,
+        full_name: fd.get('name') as string,
+        role,
+        avatar_url: avatarUrl,
+      })
+    }
+
     window.location.href = role === 'master' ? '/onboarding/master' : '/onboarding/trader'
   }
 
@@ -47,7 +92,7 @@ function SignupForm() {
 
         <div className="rounded-2xl p-8 tf-card-gold">
           <h1 style={{ fontFamily: 'var(--font-syne)', fontSize: '1.75rem', fontWeight: 700, color: 'var(--tf-text)' }}>Create your account</h1>
-          <p className="mt-2 text-sm" style={{ color: 'var(--tf-muted)' }}>Join Morocco&apos;s top copy-trading platform.</p>
+          <p className="mt-2 text-sm" style={{ color: 'var(--tf-muted)' }}>Join the top copy-trading platform.</p>
 
           {/* Role selector */}
           <div className="mt-6 grid grid-cols-2 gap-3">
@@ -58,18 +103,55 @@ function SignupForm() {
                   border: role === r ? '1px solid #C9A84C' : '1px solid var(--tf-border)',
                   background: role === r ? 'rgba(201,168,76,.1)' : 'var(--tf-card-inner)',
                 }}>
-                <div className="text-lg mb-1">{r === 'master' ? '👑' : '📈'}</div>
-                <div className="text-sm font-semibold" style={{ color: 'var(--tf-text)' }}>
+                <div className="text-sm font-semibold mb-1" style={{ color: 'var(--tf-text)' }}>
                   {r === 'master' ? 'Master Trader' : 'Copy Trader'}
                 </div>
-                <div className="text-xs mt-1" style={{ color: 'var(--tf-subtle)' }}>
+                <div className="text-xs" style={{ color: 'var(--tf-subtle)' }}>
                   {r === 'master' ? 'Share your signals & earn' : 'Follow top traders automatically'}
                 </div>
               </button>
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {/* Avatar upload */}
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="relative w-24 h-24 rounded-full flex items-center justify-center transition-all overflow-hidden"
+              style={{
+                border: avatarFile ? '2px solid #C9A84C' : '2px dashed var(--tf-border)',
+                background: avatarFile ? 'transparent' : 'var(--tf-card-inner)',
+              }}
+            >
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover rounded-full" />
+              ) : (
+                <div className="flex flex-col items-center gap-1">
+                  <Camera size={22} style={{ color: 'var(--tf-subtle)' }} />
+                  <span className="text-[10px] font-mono" style={{ color: 'var(--tf-subtle)' }}>Photo</span>
+                </div>
+              )}
+              {avatarPreview && (
+                <div className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                  style={{ background: 'rgba(0,0,0,0.45)' }}>
+                  <Camera size={18} color="white" />
+                </div>
+              )}
+            </button>
+            <span className="text-xs font-mono" style={{ color: avatarFile ? '#C9A84C' : 'var(--tf-subtle)' }}>
+              {avatarFile ? avatarFile.name : 'Profile photo required'}
+            </span>
+          </div>
+
+          <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             <div>
               <label className="block text-xs font-mono uppercase tracking-widest mb-2" style={{ color: 'var(--tf-muted)' }}>Full Name</label>
               <input name="name" type="text" required placeholder="Youssef Amrani"

@@ -107,7 +107,9 @@ export default function MasterDashboard() {
         </Link>
 
         <div className="rounded-xl p-4 text-center" style={{ background: 'rgba(201,168,76,.08)', border: '1px solid rgba(201,168,76,.2)' }}>
-          <div className="w-14 h-14 rounded-full grid place-items-center mx-auto mb-3 font-bold text-xl" style={{ background: 'linear-gradient(135deg,#E0C26A,#C9A84C)', color: '#1F2329', fontFamily: SYS }}>{initials}</div>
+          <div className="w-14 h-14 rounded-full grid place-items-center mx-auto mb-3 font-bold text-xl overflow-hidden" style={{ background: 'linear-gradient(135deg,#E0C26A,#C9A84C)', color: '#1F2329', fontFamily: SYS }}>
+            {profile?.avatar_url ? <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" /> : initials}
+          </div>
           <div className="text-sm font-semibold" style={{ color: 'var(--tf-text)' }}>{profile?.full_name ?? '—'}</div>
           <div className="text-xs mt-0.5" style={{ color: '#C9A84C' }}>Master Trader ✓</div>
           {profile?.city && <div className="text-xs mt-2" style={{ color: 'var(--tf-subtle)' }}>{profile.city}</div>}

@@ -136,7 +136,9 @@ export default function CopyDashboard() {
                     const init = p?.full_name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() ?? '?'
                     return (
                       <div key={gig.id} className="flex items-center gap-4 p-4 rounded-xl" style={{ background: 'var(--tf-card-inner)', border: '1px solid var(--tf-border)' }}>
-                        <div className="w-10 h-10 rounded-full grid place-items-center font-bold shrink-0" style={{ background: 'linear-gradient(135deg,#E0C26A,#C9A84C)', color: '#1F2329', fontFamily: SYS }}>{init}</div>
+                        <div className="w-10 h-10 rounded-full grid place-items-center font-bold shrink-0 overflow-hidden" style={{ background: 'linear-gradient(135deg,#E0C26A,#C9A84C)', color: '#1F2329', fontFamily: SYS }}>
+                          {p?.avatar_url ? <img src={p.avatar_url} alt={p.full_name ?? ''} className="w-full h-full object-cover" /> : init}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium truncate" style={{ color: 'var(--tf-text)' }}>{p?.full_name ?? '—'}</div>
                           <div className="text-xs mt-0.5" style={{ color: 'var(--tf-subtle)' }}>{gig.style ?? 'Trader'} · {gig.performance_fee}% fee</div>
