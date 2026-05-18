@@ -75,14 +75,7 @@ export default function StrategyPage() {
     risk_management: '',
   })
 
-  // PREVIEW ONLY — remove after review
-  const [aiResult, setAiResult] = useState<AIResult | null>({
-    score: 8,
-    confirmation: 'BUY',
-    explanation: 'Strong SMC setup with clear BOS on H4 and confluence on M15 FVG. Risk management is well-defined.',
-    strengths: ['Clear market structure bias', 'Defined RR with structure SL'],
-    risks: ['Over-trading risk on M15', 'No news filter mentioned'],
-  })
+  const [aiResult, setAiResult] = useState<AIResult | null>(null)
   const [aiError, setAiError] = useState('')
   const [chartPair, setChartPair] = useState('XAUUSD')
 
@@ -155,7 +148,7 @@ export default function StrategyPage() {
   const scoreColor = aiResult ? (aiResult.score >= 8 ? '#4ADE80' : aiResult.score >= 6 ? '#C9A84C' : '#F87171') : '#C9A84C'
 
   return (
-    <div className="min-h-screen flex tf-page" style={{ fontFamily: SYS }}>
+    <div className="h-screen flex overflow-hidden tf-page" style={{ fontFamily: SYS }}>
       <MasterSidebar profile={profile} onAvatarChange={url => setProfile(p => p ? { ...p, avatar_url: url } : p)} />
 
       <main className="flex-1 p-6 md:p-8 overflow-y-auto">
