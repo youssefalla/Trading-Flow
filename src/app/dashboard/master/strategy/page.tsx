@@ -139,7 +139,7 @@ export default function StrategyPage() {
               </div>
               <iframe key={chartPair}
                 src={`https://s.tradingview.com/widgetembed/?frameElementId=tv1&symbol=${chartPair}&interval=H1&theme=dark&style=1&locale=en&hide_top_toolbar=false&hide_legend=false&save_image=false&calendar=false`}
-                style={{ width: '100%', height: 260, border: 'none' }}
+                style={{ width: '100%', height: 480, border: 'none' }}
                 allowTransparency allowFullScreen />
             </div>
 
