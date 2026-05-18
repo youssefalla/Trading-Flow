@@ -245,6 +245,7 @@ export default function LivePage() {
               </button>
             </div>
           )}
+        </div>
 
         {/* Coach: schedule form */}
         {isCoach && showScheduleForm && (
