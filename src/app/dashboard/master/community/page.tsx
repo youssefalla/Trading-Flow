@@ -154,7 +154,7 @@ export default function CommunityPage() {
   )
 
   return (
-    <div className="min-h-screen flex tf-page" style={{ fontFamily: SYS }}>
+    <div className="h-screen flex overflow-hidden tf-page" style={{ fontFamily: SYS }}>
       <MasterSidebar profile={profile} onAvatarChange={url => setProfile(p => p ? { ...p, avatar_url: url } : p)} />
 
       <main className="flex-1 flex flex-col overflow-hidden">
