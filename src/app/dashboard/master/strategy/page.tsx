@@ -42,7 +42,6 @@ export default function StrategyPage() {
   const [aiResult, setAiResult] = useState<AIResult | null>(null)
   const [aiError, setAiError] = useState('')
   const [chartPair, setChartPair] = useState('XAUUSD')
-  const [chart2Pair, setChart2Pair] = useState('EURUSD')
 
   useEffect(() => {
     async function load() {
@@ -125,11 +124,11 @@ export default function StrategyPage() {
             <p className="mt-1 text-sm" style={{ color: 'var(--tf-subtle)' }}>Build your strategy, get AI scoring, and receive email alerts.</p>
           </div>
 
-          {/* ROW 1 — Charts (left 2/3) + AI Score (right 1/3) */}
+          {/* ROW 1 — Chart (left 2/3) + AI Score (right 1/3) */}
           <div className="grid grid-cols-3 gap-4">
 
-            {/* Chart 1 */}
-            <div className="rounded-2xl overflow-hidden tf-card-bg col-span-1">
+            {/* Single chart — spans 2 cols */}
+            <div className="rounded-2xl overflow-hidden tf-card-bg col-span-2">
               <div className="flex items-center gap-2 px-4 pt-3 pb-0">
                 <span className="text-xs font-semibold flex-1" style={{ color: 'var(--tf-text)' }}>Live Chart</span>
                 <select value={chartPair} onChange={e => setChartPair(e.target.value)}
@@ -140,23 +139,7 @@ export default function StrategyPage() {
               </div>
               <iframe key={chartPair}
                 src={`https://s.tradingview.com/widgetembed/?frameElementId=tv1&symbol=${chartPair}&interval=H1&theme=dark&style=1&locale=en&hide_top_toolbar=false&hide_legend=false&save_image=false&calendar=false`}
-                style={{ width: '100%', height: 220, border: 'none' }}
-                allowTransparency allowFullScreen />
-            </div>
-
-            {/* Chart 2 */}
-            <div className="rounded-2xl overflow-hidden tf-card-bg col-span-1">
-              <div className="flex items-center gap-2 px-4 pt-3 pb-0">
-                <span className="text-xs font-semibold flex-1" style={{ color: 'var(--tf-text)' }}>Live Chart</span>
-                <select value={chart2Pair} onChange={e => setChart2Pair(e.target.value)}
-                  className="text-xs font-mono rounded-lg px-2 py-1 outline-none"
-                  style={{ background: 'var(--tf-card-inner)', border: '1px solid var(--tf-border)', color: 'var(--tf-muted)' }}>
-                  {PAIRS.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-              </div>
-              <iframe key={chart2Pair}
-                src={`https://s.tradingview.com/widgetembed/?frameElementId=tv2&symbol=${chart2Pair}&interval=H1&theme=dark&style=1&locale=en&hide_top_toolbar=false&hide_legend=false&save_image=false&calendar=false`}
-                style={{ width: '100%', height: 220, border: 'none' }}
+                style={{ width: '100%', height: 260, border: 'none' }}
                 allowTransparency allowFullScreen />
             </div>
 
