@@ -17,6 +17,42 @@ interface AIResult {
   risks: string[]
 }
 
+function ScoreChart({ score, color }: { score: number; color: string }) {
+  const W = 280, H = 130, PAD = 18
+  const rel = [0.50, 0.42, 0.60, 0.53, 0.70, 0.82, 1.0]
+  const s = score / 10
+  const pts = rel.map((r, i) => ({
+    x: PAD + (i / (rel.length - 1)) * (W - PAD * 2),
+    y: H - PAD - r * s * (H - PAD * 1.5),
+  }))
+  let line = `M ${pts[0].x} ${pts[0].y}`
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i]
+    const cx = (a.x + b.x) / 2
+    line += ` C ${cx} ${a.y} ${cx} ${b.y} ${b.x} ${b.y}`
+  }
+  const fill = line + ` L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`
+  const uid = `sg${score}`
+  return (
+    <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block' }}>
+      <defs>
+        <linearGradient id={uid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <path d={fill} fill={`url(#${uid})`} />
+      <path d={line} fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      {pts.map((pt, i) => (
+        <g key={i}>
+          <line x1={pt.x} y1={pt.y} x2={pt.x} y2={H - 4} stroke={color} strokeWidth="0.6" strokeOpacity="0.25" strokeDasharray="2 3" />
+          <circle cx={pt.x} cy={pt.y} r="3.2" fill={color} stroke="#0c1829" strokeWidth="1.5" />
+        </g>
+      ))}
+    </svg>
+  )
+}
+
 const confirmationColor: Record<string, string> = {
   'STRONG BUY': '#4ADE80',
   'BUY': '#86EFAC',
@@ -147,27 +183,24 @@ export default function StrategyPage() {
             <div className="col-span-1">
               {aiResult ? (
                 <div className="rounded-2xl p-5 tf-card-bg h-full flex flex-col" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-3">
                     <h2 className="text-xs font-semibold" style={{ color: 'var(--tf-text)' }}>AI Analysis</h2>
                     <span className="text-[10px] font-mono px-2.5 py-1 rounded-full"
                       style={{ background: `${confirmationColor[aiResult.confirmation]}18`, color: confirmationColor[aiResult.confirmation], border: `1px solid ${confirmationColor[aiResult.confirmation]}40` }}>
                       {aiResult.confirmation}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="relative w-16 h-16 shrink-0">
-                      <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--tf-border)" strokeWidth="2.5"/>
-                        <circle cx="18" cy="18" r="15.9" fill="none" stroke={scoreColor} strokeWidth="2.5"
-                          strokeDasharray={`${aiResult.score * 10} 100`} strokeLinecap="round"/>
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span style={{ fontSize: '1.1rem', fontWeight: 700, color: scoreColor }}>{aiResult.score}</span>
-                        <span className="text-[9px]" style={{ color: 'var(--tf-subtle)' }}>/10</span>
-                      </div>
+
+                  {/* Score chart */}
+                  <div className="relative rounded-xl overflow-hidden mb-3" style={{ background: 'linear-gradient(160deg, #0c1829 0%, #080f1c 100%)' }}>
+                    <ScoreChart score={aiResult.score} color={scoreColor} />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span style={{ fontSize: '2.6rem', fontWeight: 800, color: scoreColor, lineHeight: 1, textShadow: `0 0 24px ${scoreColor}55` }}>{aiResult.score * 10}%</span>
+                      <span className="text-[10px] mt-1 font-mono" style={{ color: 'rgba(255,255,255,.35)' }}>Strategy Score</span>
                     </div>
-                    <p className="text-xs leading-relaxed" style={{ color: 'var(--tf-muted)' }}>{aiResult.explanation}</p>
                   </div>
+
+                  <p className="text-xs leading-relaxed mb-3" style={{ color: 'var(--tf-muted)' }}>{aiResult.explanation}</p>
                   {aiResult.strengths?.length > 0 && (
                     <div className="rounded-xl p-3 mb-2" style={{ background: 'rgba(74,222,128,.06)', border: '1px solid rgba(74,222,128,.15)' }}>
                       <div className="text-[9px] font-mono uppercase tracking-widest mb-2" style={{ color: '#4ADE80' }}>Strengths</div>
