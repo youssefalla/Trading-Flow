@@ -41,9 +41,8 @@ export default function StrategyPage() {
 
   const [aiResult, setAiResult] = useState<AIResult | null>(null)
   const [aiError, setAiError] = useState('')
-
-  // TradingView chart pair
   const [chartPair, setChartPair] = useState('XAUUSD')
+  const [chart2Pair, setChart2Pair] = useState('EURUSD')
 
   useEffect(() => {
     async function load() {
@@ -118,185 +117,178 @@ export default function StrategyPage() {
       <MasterSidebar profile={profile} onAvatarChange={url => setProfile(p => p ? { ...p, avatar_url: url } : p)} />
 
       <main className="flex-1 p-6 md:p-8 overflow-y-auto">
-        <div className="max-w-5xl mx-auto">
-          <div className="mb-8">
-            <h1 style={{ fontFamily: SYS, fontSize: '1.75rem', fontWeight: 700, color: 'var(--tf-text)', letterSpacing: '-0.03em' }}>Strategy Intelligence</h1>
+        <div className="max-w-6xl mx-auto space-y-6">
+
+          {/* Header */}
+          <div>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--tf-text)', letterSpacing: '-0.03em' }}>Strategy Intelligence</h1>
             <p className="mt-1 text-sm" style={{ color: 'var(--tf-subtle)' }}>Build your strategy, get AI scoring, and receive email alerts.</p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* LEFT — Strategy Builder */}
-            <div className="space-y-5">
+          {/* ROW 1 — Charts (left 2/3) + AI Score (right 1/3) */}
+          <div className="grid grid-cols-3 gap-4">
 
-              {/* Pairs */}
-              <div className="rounded-2xl p-6 tf-card-bg">
-                <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--tf-text)' }}>Trading Pairs</h2>
-                <div className="flex flex-wrap gap-2">
-                  {PAIRS.map(p => (
-                    <button key={p} onClick={() => togglePair(p)}
-                      className="rounded-full px-3 py-1.5 text-xs font-mono transition-all"
-                      style={{ border: form.pairs.includes(p) ? '1px solid #C9A84C' : '1px solid var(--tf-border)', background: form.pairs.includes(p) ? 'rgba(201,168,76,.15)' : 'transparent', color: form.pairs.includes(p) ? '#C9A84C' : 'var(--tf-muted)' }}>
-                      {p}
-                    </button>
-                  ))}
-                </div>
+            {/* Chart 1 */}
+            <div className="rounded-2xl overflow-hidden tf-card-bg col-span-1">
+              <div className="flex items-center gap-2 px-4 pt-3 pb-0">
+                <span className="text-xs font-semibold flex-1" style={{ color: 'var(--tf-text)' }}>Live Chart</span>
+                <select value={chartPair} onChange={e => setChartPair(e.target.value)}
+                  className="text-xs font-mono rounded-lg px-2 py-1 outline-none"
+                  style={{ background: 'var(--tf-card-inner)', border: '1px solid var(--tf-border)', color: 'var(--tf-muted)' }}>
+                  {PAIRS.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
               </div>
-
-              {/* Timeframes */}
-              <div className="rounded-2xl p-6 tf-card-bg">
-                <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--tf-text)' }}>Timeframes</h2>
-                <div className="flex flex-wrap gap-2">
-                  {TIMEFRAMES.map(t => (
-                    <button key={t} onClick={() => toggleTF(t)}
-                      className="rounded-full px-3 py-1.5 text-xs font-mono transition-all"
-                      style={{ border: form.timeframes.includes(t) ? '1px solid #C9A84C' : '1px solid var(--tf-border)', background: form.timeframes.includes(t) ? 'rgba(201,168,76,.15)' : 'transparent', color: form.timeframes.includes(t) ? '#C9A84C' : 'var(--tf-muted)' }}>
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Style */}
-              <div className="rounded-2xl p-6 tf-card-bg">
-                <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--tf-text)' }}>Trading Style</h2>
-                <div className="grid grid-cols-3 gap-2">
-                  {['Scalping', 'Day Trading', 'Swing', 'SMC', 'Price Action', 'ICT'].map(s => (
-                    <button key={s} onClick={() => setForm(f => ({ ...f, style: s }))}
-                      className="rounded-xl py-2.5 text-xs font-medium transition-all"
-                      style={{ border: form.style === s ? '1px solid #C9A84C' : '1px solid var(--tf-border)', background: form.style === s ? 'rgba(201,168,76,.1)' : 'transparent', color: form.style === s ? '#C9A84C' : 'var(--tf-muted)' }}>
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Entry Rules */}
-              <div className="rounded-2xl p-6 tf-card-bg">
-                <h2 className="text-sm font-semibold mb-2" style={{ color: 'var(--tf-text)' }}>Entry Rules</h2>
-                <p className="text-xs mb-3" style={{ color: 'var(--tf-subtle)' }}>Describe your setup: structure, confluence, triggers…</p>
-                <textarea value={form.entry_rules}
-                  onChange={e => setForm(f => ({ ...f, entry_rules: e.target.value }))}
-                  rows={5} placeholder="e.g. I wait for a market structure break on H4, then look for a BOS on H1 with a 50% FVG entry on M15. Entry confirmed when price closes above previous swing high with volume..."
-                  className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none tf-input" />
-              </div>
-
-              {/* Risk Management */}
-              <div className="rounded-2xl p-6 tf-card-bg">
-                <h2 className="text-sm font-semibold mb-2" style={{ color: 'var(--tf-text)' }}>Risk Management</h2>
-                <textarea value={form.risk_management}
-                  onChange={e => setForm(f => ({ ...f, risk_management: e.target.value }))}
-                  rows={3} placeholder="e.g. Max 1% risk per trade, 1:3 RR minimum, stop loss always behind structure, max 2 trades per day..."
-                  className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none tf-input" />
-              </div>
-
-              {aiError && <p className="text-xs font-mono" style={{ color: '#F87171' }}>{aiError}</p>}
-              {saved && <p className="text-xs font-mono" style={{ color: '#4ADE80' }}>✓ Strategy saved. Email sent if score ≥ 7.</p>}
-
-              <button onClick={scoreStrategy} disabled={scoring}
-                className="btn-gold rounded-xl py-4 text-sm font-semibold w-full">
-                {scoring ? 'AI is analyzing your strategy…' : '🤖 Score My Strategy with AI'}
-              </button>
+              <iframe key={chartPair}
+                src={`https://s.tradingview.com/widgetembed/?frameElementId=tv1&symbol=${chartPair}&interval=H1&theme=dark&style=1&locale=en&hide_top_toolbar=false&hide_legend=false&save_image=false&calendar=false`}
+                style={{ width: '100%', height: 220, border: 'none' }}
+                allowTransparency allowFullScreen />
             </div>
 
-            {/* RIGHT — AI Result + Chart */}
-            <div className="space-y-5">
+            {/* Chart 2 */}
+            <div className="rounded-2xl overflow-hidden tf-card-bg col-span-1">
+              <div className="flex items-center gap-2 px-4 pt-3 pb-0">
+                <span className="text-xs font-semibold flex-1" style={{ color: 'var(--tf-text)' }}>Live Chart</span>
+                <select value={chart2Pair} onChange={e => setChart2Pair(e.target.value)}
+                  className="text-xs font-mono rounded-lg px-2 py-1 outline-none"
+                  style={{ background: 'var(--tf-card-inner)', border: '1px solid var(--tf-border)', color: 'var(--tf-muted)' }}>
+                  {PAIRS.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <iframe key={chart2Pair}
+                src={`https://s.tradingview.com/widgetembed/?frameElementId=tv2&symbol=${chart2Pair}&interval=H1&theme=dark&style=1&locale=en&hide_top_toolbar=false&hide_legend=false&save_image=false&calendar=false`}
+                style={{ width: '100%', height: 220, border: 'none' }}
+                allowTransparency allowFullScreen />
+            </div>
 
-              {/* AI Score Card */}
+            {/* AI Score */}
+            <div className="col-span-1">
               {aiResult ? (
-                <div className="rounded-2xl p-6 tf-card-bg">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-sm font-semibold" style={{ color: 'var(--tf-text)' }}>AI Analysis</h2>
-                    <span className="text-xs font-mono px-3 py-1 rounded-full"
+                <div className="rounded-2xl p-5 tf-card-bg h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xs font-semibold" style={{ color: 'var(--tf-text)' }}>AI Analysis</h2>
+                    <span className="text-[10px] font-mono px-2.5 py-1 rounded-full"
                       style={{ background: `${confirmationColor[aiResult.confirmation]}18`, color: confirmationColor[aiResult.confirmation], border: `1px solid ${confirmationColor[aiResult.confirmation]}40` }}>
                       {aiResult.confirmation}
                     </span>
                   </div>
-
-                  <div className="flex items-center gap-6 mb-6">
-                    <div className="relative w-24 h-24 shrink-0">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="relative w-16 h-16 shrink-0">
                       <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
                         <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--tf-border)" strokeWidth="2.5"/>
                         <circle cx="18" cy="18" r="15.9" fill="none" stroke={scoreColor} strokeWidth="2.5"
                           strokeDasharray={`${aiResult.score * 10} 100`} strokeLinecap="round"/>
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span style={{ fontFamily: SYS, fontSize: '1.5rem', fontWeight: 700, color: scoreColor }}>{aiResult.score}</span>
-                        <span className="text-[10px]" style={{ color: 'var(--tf-subtle)' }}>/10</span>
+                        <span style={{ fontSize: '1.1rem', fontWeight: 700, color: scoreColor }}>{aiResult.score}</span>
+                        <span className="text-[9px]" style={{ color: 'var(--tf-subtle)' }}>/10</span>
                       </div>
                     </div>
-                    <p className="text-sm leading-relaxed" style={{ color: 'var(--tf-muted)' }}>{aiResult.explanation}</p>
+                    <p className="text-xs leading-relaxed" style={{ color: 'var(--tf-muted)' }}>{aiResult.explanation}</p>
                   </div>
-
-                  {(aiResult.strengths?.length > 0 || aiResult.risks?.length > 0) && (
-                    <div className="grid grid-cols-2 gap-4">
-                      {aiResult.strengths?.length > 0 && (
-                        <div className="rounded-xl p-4" style={{ background: 'rgba(74,222,128,.06)', border: '1px solid rgba(74,222,128,.15)' }}>
-                          <div className="text-[10px] font-mono uppercase tracking-widest mb-3" style={{ color: '#4ADE80' }}>Strengths</div>
-                          {aiResult.strengths.map((s, i) => (
-                            <div key={i} className="text-xs mb-1.5 flex gap-2" style={{ color: 'var(--tf-muted)' }}>
-                              <span style={{ color: '#4ADE80' }}>✓</span>{s}
-                            </div>
-                          ))}
+                  {aiResult.strengths?.length > 0 && (
+                    <div className="rounded-xl p-3 mb-2" style={{ background: 'rgba(74,222,128,.06)', border: '1px solid rgba(74,222,128,.15)' }}>
+                      <div className="text-[9px] font-mono uppercase tracking-widest mb-2" style={{ color: '#4ADE80' }}>Strengths</div>
+                      {aiResult.strengths.slice(0, 2).map((s, i) => (
+                        <div key={i} className="text-[11px] mb-1 flex gap-1.5" style={{ color: 'var(--tf-muted)' }}>
+                          <span style={{ color: '#4ADE80' }}>✓</span>{s}
                         </div>
-                      )}
-                      {aiResult.risks?.length > 0 && (
-                        <div className="rounded-xl p-4" style={{ background: 'rgba(248,113,113,.06)', border: '1px solid rgba(248,113,113,.15)' }}>
-                          <div className="text-[10px] font-mono uppercase tracking-widest mb-3" style={{ color: '#F87171' }}>Risks</div>
-                          {aiResult.risks.map((r, i) => (
-                            <div key={i} className="text-xs mb-1.5 flex gap-2" style={{ color: 'var(--tf-muted)' }}>
-                              <span style={{ color: '#F87171' }}>⚠</span>{r}
-                            </div>
-                          ))}
+                      ))}
+                    </div>
+                  )}
+                  {aiResult.risks?.length > 0 && (
+                    <div className="rounded-xl p-3" style={{ background: 'rgba(248,113,113,.06)', border: '1px solid rgba(248,113,113,.15)' }}>
+                      <div className="text-[9px] font-mono uppercase tracking-widest mb-2" style={{ color: '#F87171' }}>Risks</div>
+                      {aiResult.risks.slice(0, 2).map((r, i) => (
+                        <div key={i} className="text-[11px] mb-1 flex gap-1.5" style={{ color: 'var(--tf-muted)' }}>
+                          <span style={{ color: '#F87171' }}>⚠</span>{r}
                         </div>
-                      )}
+                      ))}
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="rounded-2xl p-10 tf-card-bg text-center">
-                  <div className="text-4xl mb-4">🤖</div>
-                  <p className="text-sm font-semibold mb-2" style={{ color: 'var(--tf-text)' }}>No AI score yet</p>
-                  <p className="text-xs" style={{ color: 'var(--tf-subtle)' }}>Fill in your strategy and click "Score My Strategy" to get your AI analysis.</p>
-                </div>
-              )}
-
-              {/* TradingView Chart */}
-              <div className="rounded-2xl overflow-hidden tf-card-bg">
-                <div className="flex items-center gap-2 p-4 pb-0">
-                  <h2 className="text-sm font-semibold flex-1" style={{ color: 'var(--tf-text)' }}>Live Chart</h2>
-                  <select value={chartPair} onChange={e => setChartPair(e.target.value)}
-                    className="text-xs font-mono rounded-lg px-3 py-1.5 outline-none"
-                    style={{ background: 'var(--tf-card-inner)', border: '1px solid var(--tf-border)', color: 'var(--tf-muted)' }}>
-                    {PAIRS.map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
-                <div className="p-4">
-                  <iframe
-                    key={chartPair}
-                    src={`https://s.tradingview.com/widgetembed/?frameElementId=tv&symbol=${chartPair}&interval=H1&theme=dark&style=1&locale=en&enable_publishing=false&hide_top_toolbar=false&hide_legend=false&save_image=false&calendar=false&hide_volume=false`}
-                    style={{ width: '100%', height: 340, border: 'none', borderRadius: 12 }}
-                    allowTransparency
-                    allowFullScreen
-                  />
-                </div>
-              </div>
-
-              {/* Score history note */}
-              {aiResult && (
-                <div className="rounded-2xl p-5 tf-card-bg flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full grid place-items-center shrink-0" style={{ background: 'rgba(201,168,76,.12)', border: '1px solid rgba(201,168,76,.25)' }}>
-                    <span style={{ color: '#C9A84C', fontSize: '1.1rem' }}>✉</span>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--tf-text)' }}>Email alert sent</div>
-                    <div className="text-xs mt-0.5" style={{ color: 'var(--tf-subtle)' }}>
-                      {aiResult.score >= 7 ? 'Your strategy scored ≥ 7 — alert sent to your email.' : 'Score below 7 — no alert sent. Improve your strategy and rescore.'}
-                    </div>
-                  </div>
+                <div className="rounded-2xl p-6 tf-card-bg h-full flex flex-col items-center justify-center text-center">
+                  <div className="text-3xl mb-3">🤖</div>
+                  <p className="text-xs font-semibold mb-1" style={{ color: 'var(--tf-text)' }}>No AI score yet</p>
+                  <p className="text-[11px]" style={{ color: 'var(--tf-subtle)' }}>Fill in your strategy and click "Score My Strategy" to get your AI analysis.</p>
                 </div>
               )}
             </div>
           </div>
+
+          {/* ROW 2 — Trading Pairs + Trading Style */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-2xl p-5 tf-card-bg">
+              <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--tf-text)' }}>Trading Pairs</h2>
+              <div className="flex flex-wrap gap-2">
+                {PAIRS.map(p => (
+                  <button key={p} onClick={() => togglePair(p)}
+                    className="rounded-full px-3 py-1.5 text-xs font-mono transition-all"
+                    style={{ border: form.pairs.includes(p) ? '1px solid #C9A84C' : '1px solid var(--tf-border)', background: form.pairs.includes(p) ? 'rgba(201,168,76,.15)' : 'transparent', color: form.pairs.includes(p) ? '#C9A84C' : 'var(--tf-muted)' }}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl p-5 tf-card-bg">
+              <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--tf-text)' }}>Trading Style</h2>
+              <div className="grid grid-cols-3 gap-2">
+                {['Scalping', 'Day Trading', 'Swing', 'SMC', 'Price Action', 'ICT'].map(s => (
+                  <button key={s} onClick={() => setForm(f => ({ ...f, style: s }))}
+                    className="rounded-xl py-2.5 text-xs font-medium transition-all"
+                    style={{ border: form.style === s ? '1px solid #C9A84C' : '1px solid var(--tf-border)', background: form.style === s ? 'rgba(201,168,76,.1)' : 'transparent', color: form.style === s ? '#C9A84C' : 'var(--tf-muted)' }}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ROW 3 — Timeframes */}
+          <div className="rounded-2xl p-5 tf-card-bg">
+            <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--tf-text)' }}>Timeframes</h2>
+            <div className="flex flex-wrap gap-2">
+              {TIMEFRAMES.map(t => (
+                <button key={t} onClick={() => toggleTF(t)}
+                  className="rounded-full px-4 py-1.5 text-xs font-mono transition-all"
+                  style={{ border: form.timeframes.includes(t) ? '1px solid #C9A84C' : '1px solid var(--tf-border)', background: form.timeframes.includes(t) ? 'rgba(201,168,76,.15)' : 'transparent', color: form.timeframes.includes(t) ? '#C9A84C' : 'var(--tf-muted)' }}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ROW 4 — Entry Rules + Risk Management */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-2xl p-5 tf-card-bg">
+              <h2 className="text-sm font-semibold mb-1" style={{ color: 'var(--tf-text)' }}>Entry Rules</h2>
+              <p className="text-xs mb-3" style={{ color: 'var(--tf-subtle)' }}>Describe your setup: structure, confluence, triggers…</p>
+              <textarea value={form.entry_rules}
+                onChange={e => setForm(f => ({ ...f, entry_rules: e.target.value }))}
+                rows={5} placeholder="e.g. I wait for a market structure break on H4, then look for a BOS on H1 with a 50% FVG entry on M15..."
+                className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none tf-input" />
+            </div>
+
+            <div className="rounded-2xl p-5 tf-card-bg">
+              <h2 className="text-sm font-semibold mb-1" style={{ color: 'var(--tf-text)' }}>Risk Management</h2>
+              <p className="text-xs mb-3" style={{ color: 'var(--tf-subtle)' }}>Define your risk rules and position sizing…</p>
+              <textarea value={form.risk_management}
+                onChange={e => setForm(f => ({ ...f, risk_management: e.target.value }))}
+                rows={5} placeholder="e.g. Max 1% risk per trade, 1:3 RR minimum, stop loss always behind structure, max 2 trades per day..."
+                className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none tf-input" />
+            </div>
+          </div>
+
+          {/* ROW 5 — Button */}
+          {aiError && <p className="text-xs font-mono text-center" style={{ color: '#F87171' }}>{aiError}</p>}
+          {saved && <p className="text-xs font-mono text-center" style={{ color: '#4ADE80' }}>✓ Strategy saved. Email sent if score ≥ 7.</p>}
+
+          <button onClick={scoreStrategy} disabled={scoring}
+            className="btn-gold rounded-xl py-4 text-sm font-semibold w-full">
+            {scoring ? 'AI is analyzing your strategy…' : '🤖 Score My Strategy with AI'}
+          </button>
+
         </div>
       </main>
     </div>
