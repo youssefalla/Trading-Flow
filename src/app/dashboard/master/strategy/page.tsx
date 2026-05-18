@@ -17,6 +17,15 @@ interface AIResult {
   risks: string[]
 }
 
+function SectionHeading({ title }: { title: string }) {
+  return (
+    <div className="text-center mb-4">
+      <h2 className="text-sm font-semibold mb-2" style={{ color: 'var(--tf-text)' }}>{title}</h2>
+      <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, #C9A84C 50%, transparent)', boxShadow: '0 0 10px rgba(201,168,76,.4)' }} />
+    </div>
+  )
+}
+
 function ScoreChart({ score, color }: { score: number; color: string }) {
   const W = 280, H = 130, PAD = 18
   const rel = [0.50, 0.42, 0.60, 0.53, 0.70, 0.82, 1.0]
@@ -155,9 +164,10 @@ export default function StrategyPage() {
         <div className="max-w-6xl mx-auto space-y-6">
 
           {/* Header */}
-          <div>
+          <div className="text-center">
             <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--tf-text)', letterSpacing: '-0.03em' }}>Strategy Intelligence</h1>
             <p className="mt-1 text-sm" style={{ color: 'var(--tf-subtle)' }}>Build your strategy, get AI scoring, and receive email alerts.</p>
+            <div className="mt-3" style={{ height: 1, background: 'linear-gradient(90deg, transparent, #C9A84C 50%, transparent)', boxShadow: '0 0 12px rgba(201,168,76,.45)' }} />
           </div>
 
           {/* ROW 1 — Chart (left 2/3) + AI Score (right 1/3) */}
@@ -165,13 +175,18 @@ export default function StrategyPage() {
 
             {/* Single chart — spans 2 cols */}
             <div className="rounded-2xl overflow-hidden tf-card-bg col-span-2" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
-              <div className="flex items-center gap-2 px-4 pt-3 pb-0">
-                <span className="text-xs font-semibold flex-1" style={{ color: 'var(--tf-text)' }}>Live Chart</span>
-                <select value={chartPair} onChange={e => setChartPair(e.target.value)}
-                  className="text-xs font-mono rounded-lg px-2 py-1 outline-none"
-                  style={{ background: 'var(--tf-card-inner)', border: '1px solid var(--tf-border)', color: 'var(--tf-muted)' }}>
-                  {PAIRS.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
+              <div className="px-4 pt-4 pb-0">
+                <div className="text-center mb-2">
+                  <div className="flex items-center justify-center gap-3 mb-2">
+                    <h2 className="text-sm font-semibold" style={{ color: 'var(--tf-text)' }}>Live Chart</h2>
+                    <select value={chartPair} onChange={e => setChartPair(e.target.value)}
+                      className="text-xs font-mono rounded-lg px-2 py-1 outline-none"
+                      style={{ background: 'var(--tf-card-inner)', border: '1px solid var(--tf-border)', color: 'var(--tf-muted)' }}>
+                      {PAIRS.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, #C9A84C 50%, transparent)', boxShadow: '0 0 10px rgba(201,168,76,.4)' }} />
+                </div>
               </div>
               <iframe key={chartPair}
                 src={`https://s.tradingview.com/widgetembed/?frameElementId=tv1&symbol=${chartPair}&interval=H1&theme=dark&style=1&locale=en&hide_top_toolbar=false&hide_legend=false&save_image=false&calendar=false`}
@@ -183,12 +198,14 @@ export default function StrategyPage() {
             <div className="col-span-1">
               {aiResult ? (
                 <div className="rounded-2xl p-5 tf-card-bg h-full flex flex-col" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
-                  <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-xs font-semibold" style={{ color: 'var(--tf-text)' }}>AI Analysis</h2>
-                    <span className="text-[10px] font-mono px-2.5 py-1 rounded-full"
-                      style={{ background: `${confirmationColor[aiResult.confirmation]}18`, color: confirmationColor[aiResult.confirmation], border: `1px solid ${confirmationColor[aiResult.confirmation]}40` }}>
-                      {aiResult.confirmation}
-                    </span>
+                  <div className="mb-3">
+                    <SectionHeading title="AI Analysis" />
+                    <div className="flex justify-center -mt-2 mb-2">
+                      <span className="text-[10px] font-mono px-2.5 py-1 rounded-full"
+                        style={{ background: `${confirmationColor[aiResult.confirmation]}18`, color: confirmationColor[aiResult.confirmation], border: `1px solid ${confirmationColor[aiResult.confirmation]}40` }}>
+                        {aiResult.confirmation}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Score chart */}
@@ -240,7 +257,7 @@ export default function StrategyPage() {
           {/* ROW 2 — Trading Pairs + Trading Style */}
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-2xl p-5 tf-card-bg" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
-              <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--tf-text)' }}>Trading Pairs</h2>
+              <SectionHeading title="Trading Pairs" />
               <div className="flex flex-wrap gap-2">
                 {PAIRS.map(p => (
                   <button key={p} onClick={() => togglePair(p)}
@@ -253,7 +270,7 @@ export default function StrategyPage() {
             </div>
 
             <div className="rounded-2xl p-5 tf-card-bg" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
-              <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--tf-text)' }}>Trading Style</h2>
+              <SectionHeading title="Trading Style" />
               <div className="grid grid-cols-3 gap-2">
                 {['Scalping', 'Day Trading', 'Swing', 'SMC', 'Price Action', 'ICT'].map(s => (
                   <button key={s} onClick={() => setForm(f => ({ ...f, style: s }))}
@@ -268,7 +285,7 @@ export default function StrategyPage() {
 
           {/* ROW 3 — Timeframes */}
           <div className="rounded-2xl p-5 tf-card-bg" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
-            <h2 className="text-sm font-semibold mb-4" style={{ color: 'var(--tf-text)' }}>Timeframes</h2>
+            <SectionHeading title="Timeframes" />
             <div className="flex flex-wrap gap-2">
               {TIMEFRAMES.map(t => (
                 <button key={t} onClick={() => toggleTF(t)}
@@ -283,8 +300,8 @@ export default function StrategyPage() {
           {/* ROW 4 — Entry Rules + Risk Management */}
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-2xl p-5 tf-card-bg" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
-              <h2 className="text-sm font-semibold mb-1" style={{ color: 'var(--tf-text)' }}>Entry Rules</h2>
-              <p className="text-xs mb-3" style={{ color: 'var(--tf-subtle)' }}>Describe your setup: structure, confluence, triggers…</p>
+              <SectionHeading title="Entry Rules" />
+              <p className="text-xs mb-3 text-center" style={{ color: 'var(--tf-subtle)' }}>Describe your setup: structure, confluence, triggers…</p>
               <textarea value={form.entry_rules}
                 onChange={e => setForm(f => ({ ...f, entry_rules: e.target.value }))}
                 rows={5} placeholder="e.g. I wait for a market structure break on H4, then look for a BOS on H1 with a 50% FVG entry on M15..."
@@ -292,8 +309,8 @@ export default function StrategyPage() {
             </div>
 
             <div className="rounded-2xl p-5 tf-card-bg" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
-              <h2 className="text-sm font-semibold mb-1" style={{ color: 'var(--tf-text)' }}>Risk Management</h2>
-              <p className="text-xs mb-3" style={{ color: 'var(--tf-subtle)' }}>Define your risk rules and position sizing…</p>
+              <SectionHeading title="Risk Management" />
+              <p className="text-xs mb-3 text-center" style={{ color: 'var(--tf-subtle)' }}>Define your risk rules and position sizing…</p>
               <textarea value={form.risk_management}
                 onChange={e => setForm(f => ({ ...f, risk_management: e.target.value }))}
                 rows={5} placeholder="e.g. Max 1% risk per trade, 1:3 RR minimum, stop loss always behind structure, max 2 trades per day..."
