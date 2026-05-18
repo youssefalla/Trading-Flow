@@ -164,14 +164,14 @@ export default function StrategyPage() {
         <div className="max-w-6xl mx-auto space-y-6">
 
           {/* Header */}
-          <div className="text-center">
+          <div className="text-center tf-fade-in" style={{ animationDelay: '0s' }}>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--tf-text)', letterSpacing: '-0.03em' }}>Strategy Intelligence</h1>
             <p className="mt-1 text-sm" style={{ color: 'var(--tf-subtle)' }}>Build your strategy, get AI scoring, and receive email alerts.</p>
             <div className="mt-3" style={{ height: 1, background: 'linear-gradient(90deg, transparent, #C9A84C 50%, transparent)', boxShadow: '0 0 12px rgba(201,168,76,.45)' }} />
           </div>
 
           {/* ROW 1 — Chart (left 2/3) + AI Score (right 1/3) */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 tf-fade-in" style={{ animationDelay: '0.1s' }}>
 
             {/* Single chart — spans 2 cols */}
             <div className="rounded-2xl overflow-hidden tf-card-bg col-span-2" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
@@ -255,7 +255,7 @@ export default function StrategyPage() {
           </div>
 
           {/* ROW 2 — Trading Pairs + Trading Style */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 tf-fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="rounded-2xl p-5 tf-card-bg" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
               <SectionHeading title="Trading Pairs" />
               <div className="flex flex-wrap gap-2">
@@ -284,7 +284,7 @@ export default function StrategyPage() {
           </div>
 
           {/* ROW 3 — Timeframes */}
-          <div className="rounded-2xl p-5 tf-card-bg" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
+          <div className="rounded-2xl p-5 tf-card-bg tf-fade-in" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)', animationDelay: '0.3s' }}>
             <SectionHeading title="Timeframes" />
             <div className="flex flex-wrap gap-2">
               {TIMEFRAMES.map(t => (
@@ -298,7 +298,7 @@ export default function StrategyPage() {
           </div>
 
           {/* ROW 4 — Entry Rules + Risk Management */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 tf-fade-in" style={{ animationDelay: '0.4s' }}>
             <div className="rounded-2xl p-5 tf-card-bg" style={{ boxShadow: 'inset 0 1px 80px rgba(201,168,76,.05), 0 0 0 1px rgba(201,168,76,.12)' }}>
               <SectionHeading title="Entry Rules" />
               <p className="text-xs mb-3 text-center" style={{ color: 'var(--tf-subtle)' }}>Describe your setup: structure, confluence, triggers…</p>
@@ -323,7 +323,7 @@ export default function StrategyPage() {
           {saved && <p className="text-xs font-mono text-center" style={{ color: '#4ADE80' }}>✓ Strategy saved. Email sent if score ≥ 7.</p>}
 
           <button onClick={scoreStrategy} disabled={scoring}
-            className="btn-gold rounded-xl py-4 text-sm font-semibold w-full">
+            className="btn-gold rounded-xl py-4 text-sm font-semibold w-full tf-fade-in" style={{ animationDelay: '0.5s' }}>
             {scoring ? 'AI is analyzing your strategy…' : '🤖 Score My Strategy with AI'}
           </button>
 
